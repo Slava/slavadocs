@@ -65,6 +65,10 @@ int main(int argc, char *argv[]) {
 
      // server is always ready to accept one connection
      while (true) {
+         FILE *htmlfile = fopen(HTML_FILE_NAME, "w");
+         fprintf(htmlfile, "%snothing here%s\n", WEBPAGE_HEADER, WEBPAGE_FOOTER);
+         fclose(htmlfile);
+
          newsockfd = accept(sockfd,
                  (struct sockaddr *) &cli_addr,
                  &clilen);
@@ -96,6 +100,7 @@ void run_session(int sockfd) {
     fprintf(stderr, "start of session\n");
     char buffer[256], command[256], command_attr[256], webpage[256*256];
     bzero(buffer,256);
+    bzero(webpage, 256*256);
 
     // while we receive any text
     while (read(sockfd,buffer,255) >= 0) {
