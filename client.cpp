@@ -47,13 +47,21 @@ int main(int argc, char *argv[]) {
 
     char buffer[256];
     if (argc < 3) {
-       fprintf(stderr,"usage %s hostname port\n", argv[0]);
+       fprintf(stderr,"usage %s hostname port [kill]\n", argv[0]);
        exit(0);
     }
     portno = atoi(argv[2]);
 
     setup_socket(sockfd, argv[1], server, serv_addr, portno);
     bzero(buffer,256);
+
+    if (argc > 3 && !strcmp(argv[3], "kill")) {
+        n = write(sockfd, "please terminate", 16);
+        if (n < 0)
+            error("ERROR writing");
+        close(sockfd);
+        return 0;
+    }
 
     n = write(sockfd, "initiate session", 16);
     if (n < 0)
