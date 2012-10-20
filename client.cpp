@@ -20,6 +20,11 @@ void error(const char *msg) {
     exit(0);
 }
 
+void send_to_server(int sockfd, char *msg) {
+    if (write(sockfd, msg, strlen(msg)) < 0)
+        error("ERROR writing");
+}
+
 void setup_socket(int &sockfd, char *hostname, hostent *server, sockaddr_in &serv_addr, int portno) {
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0)
@@ -56,23 +61,18 @@ int main(int argc, char *argv[]) {
     bzero(buffer,256);
 
     if (argc > 3 && !strcmp(argv[3], "kill")) {
-        n = write(sockfd, "please terminate", 16);
-        if (n < 0)
-            error("ERROR writing");
+        send_to_server(sockfd, "please terminate");
         close(sockfd);
         return 0;
     }
 
-    n = write(sockfd, "initiate session", 16);
-    if (n < 0)
-        error("ERROR writing");
+    send_to_server(sockfd, "initiate session");
 
     // while we get input transfer to server
     while (gets(buffer+1)) {
         // we do type request
         buffer[0] = 't';
-        if (write(sockfd, buffer, strlen(buffer)) < 0)
-            error("ERROR writing");
+        send_to_server(sockfd, buffer);
     }
 
     // close socket
