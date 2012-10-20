@@ -60,9 +60,12 @@ int main(int argc, char *argv[]) {
         error("ERROR writing");
 
     // while we get input transfer to server
-    while (gets(buffer))
+    while (gets(buffer+1)) {
+        // we do type request
+        buffer[0] = 't';
         if (write(sockfd, buffer, strlen(buffer)) < 0)
             error("ERROR writing");
+    }
 
     // close socket
     close(sockfd);

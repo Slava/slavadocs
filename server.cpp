@@ -10,20 +10,19 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-
-// C++ includes
-#include <stack>
-#include <algorithm>
+#include <assert.h>
 
 // template for web page
-#define WEBPAGE_HEADER "<html><head><title>Web page</title></head><body>"
-#define WEBPAGE_FOOTER "</body></html>"
+#define REFRESH_TIME "2"
+#define WEBPAGE_HEADER "<html><head><title>Web page</title></head><body><meta http-equiv=\"refresh\" content=\"\
+    " REFRESH_TIME "\" ><code>"
+#define WEBPAGE_FOOTER "</code></body></html>"
 
 // filename of html web page we use
 char *HTML_FILE_NAME;
 
 void run_session(int);
-void get_stack(std::stack<char>, char*);
+void normalize(char *);
 
 void error(const char *msg) {
     perror(msg);
@@ -94,22 +93,75 @@ int main(int argc, char *argv[]) {
 }
 
 void run_session(int sockfd) {
+    fprintf(stderr, "start of session\n");
     char buffer[256], command[256], command_attr[256], webpage[256*256];
-    // two stacks for work with text
-    std::stack<char> left, right;
+    bzero(buffer,256);
 
     // while we receive any text
-    while (~read(sockfd,buffer,255)) {
+    while (read(sockfd,buffer,255) >= 0) {
         // add received text to our page
-        strcat(webpage, buffer); strcat(webpage, "<br>");
 
-        // and we put all text with HEADER and FOOTER to
-        // file defined in HTML_FILE_NAME
         FILE *htmlfile = fopen(HTML_FILE_NAME, "w");
-        fprintf(htmlfile, "%s\n%s\n%s\n", WEBPAGE_HEADER, webpage, WEBPAGE_FOOTER);
+
+        // check it is type request
+        if (*buffer == 't') {
+            normalize(buffer+1);
+            strcat(webpage, buffer+1); strcat(webpage, "<br>");
+
+            fprintf(stderr, "just read: %s\n", buffer);
+
+            // and we put all text with HEADER and FOOTER to
+            // file defined in HTML_FILE_NAME
+            fprintf(htmlfile, "%s\n%s\n%s\n", WEBPAGE_HEADER, webpage, WEBPAGE_FOOTER);
+        } else if (*buffer == 'c') {    // control requests
+            ;
+        } else {
+            // probably something is wrong
+            break;
+        }
 
         fclose(htmlfile);
+        bzero(buffer,256);
     }
+
+    fprintf(stderr, "end of session\n");
 }
 
+void normalize(char *s) {
+    char buffer[256], *p, *t;
+    t = s;
+    p = buffer;
+
+    bzero(buffer,256);
+
+    while (*t) {
+        switch (*t) {
+            case '<':
+                strcat(p, "&lt;");
+                p += 4;
+                break;
+            case '>':
+                strcat(p, "&gt;");
+                p += 4;
+                break;
+            case '&':
+                strcat(p, "&amp;");
+                p += 5;
+                break;
+            case '"':
+                strcat(p, "&quot;");
+                p += 6;
+                break;
+            case '\t':
+                strcat(p, "    ");
+                p += 4;
+                break;
+            default:
+                *p++ = *t;
+        }
+        t++;
+    }
+
+    strcpy(s, buffer);
+}
 
