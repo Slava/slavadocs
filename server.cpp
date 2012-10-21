@@ -129,6 +129,7 @@ int main(int argc, char *argv[]) {
     }
 
     remove(HTML_FILE_NAME);
+    remove(datatxt);
     close(sockfd);
     return 0;
 }
