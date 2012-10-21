@@ -1,6 +1,6 @@
 // Server in the internet domain using TCP
-// The port number and path to html document
-// are passed as arguments
+// The port number, path to html document
+// and path to HTDOCS are passed as arguments
 
 // C includes
 #include <stdio.h>
@@ -13,13 +13,36 @@
 #include <assert.h>
 
 // template for web page
-#define REFRESH_TIME "2"
-#define WEBPAGE_HEADER "<html><head><title>Web page</title></head><body><meta http-equiv=\"refresh\" content=\"\
-    " REFRESH_TIME "\" ><code>"
-#define WEBPAGE_FOOTER "</code></body></html>"
+char *mainwebpage =
+"<html>\
+    <head>\
+    <title></title>\
+    <script type=\"text/javascript\">\
+        window.onload = startInterval;\
+        function startInterval() {\
+            setInterval(\"updateText();\",100);\
+        }\
+\
+        function updateText() {\
+            xmlhttp=new XMLHttpRequest();\
+            xmlhttp.onreadystatechange=function() {\
+                if (xmlhttp.readyState==4 && xmlhttp.status==200)\
+                    document.getElementById('mainblock').innerHTML = xmlhttp.responseText;\
+            }\
+            xmlhttp.open(\"GET\",\"slavadocs_data.txt\",true);\
+            xmlhttp.send();            \
+        }\
+    </script>\
+    </head>\
+    <body>  \
+        <div id=\"mainblock\"></div>\
+    </body>\
+</html>";
 
-// filename of html web page we use
+// path to html web page we use
 char *HTML_FILE_NAME;
+// path to temp data storage
+char datatxt[256];
 
 void run_session(int);
 void normalize(char *);
@@ -49,8 +72,8 @@ int main(int argc, char *argv[]) {
     char buffer[256];
     struct sockaddr_in serv_addr, cli_addr;
     int n;
-    if (argc < 3) {
-        fprintf(stderr,"usage: %s <port> <path to webpage>\n", argv[0]);
+    if (argc < 4) {
+        fprintf(stderr,"usage: %s <port> <path to webpage> <path to HTDOCS>\n", argv[0]);
         exit(1);
     }
 
@@ -60,18 +83,28 @@ int main(int argc, char *argv[]) {
     // path to html file
     HTML_FILE_NAME = argv[2];
 
+    // path to temp data
+    bzero(datatxt,256);
+    strcat(datatxt, argv[3]);
+    strcat(datatxt, "/slavadocs_data.txt");
+
+    // open socket to listen
     setup_socket(sockfd, portno, serv_addr);
     clilen = sizeof(cli_addr);
 
+    // put html file
+    FILE *htmlfile = fopen(HTML_FILE_NAME, "w");
+    if (!htmlfile)
+        error("ERROR opening file");
+
+    fprintf(htmlfile, "%s\n", mainwebpage);
+    fclose(htmlfile);
+
+    FILE *datafile = fopen(datatxt, "w");
+    fprintf(datafile, "nothing here");
+
     // server is always ready to accept one connection
     while (true) {
-        FILE *htmlfile = fopen(HTML_FILE_NAME, "w");
-        if (!htmlfile)
-            error("ERROR opening file");
-
-        fprintf(htmlfile, "%snothing here%s\n", WEBPAGE_HEADER, WEBPAGE_FOOTER);
-        fclose(htmlfile);
-
         newsockfd = accept(sockfd,
                 (struct sockaddr *) &cli_addr,
                 &clilen);
@@ -110,7 +143,7 @@ void run_session(int sockfd) {
     while (read(sockfd,buffer,255) >= 0) {
         // add received text to our page
 
-        FILE *htmlfile = fopen(HTML_FILE_NAME, "w");
+        FILE *datafile = fopen(datatxt, "w");
 
         // check it is type request
         if (*buffer == 't') {
@@ -121,7 +154,7 @@ void run_session(int sockfd) {
 
             // and we put all text with HEADER and FOOTER to
             // file defined in HTML_FILE_NAME
-            fprintf(htmlfile, "%s\n%s\n%s\n", WEBPAGE_HEADER, webpage, WEBPAGE_FOOTER);
+            fprintf(datafile, "%s\n", webpage);
         } else if (*buffer == 'c') {    // control requests
             ;
         } else {
@@ -129,7 +162,7 @@ void run_session(int sockfd) {
             break;
         }
 
-        fclose(htmlfile);
+        fclose(datafile);
         bzero(buffer,256);
     }
 

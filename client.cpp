@@ -77,7 +77,6 @@ int main(int argc, char *argv[]) {
 
     // close socket
     close(sockfd);
-    // put settings back
     return 0;
 }
 
