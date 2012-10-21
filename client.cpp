@@ -11,9 +11,6 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
-#include <sys/time.h>
-#include <fcntl.h>
-#include <termios.h>
 
 void error(const char *msg) {
     perror(msg);
