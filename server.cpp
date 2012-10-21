@@ -14,29 +14,29 @@
 
 // template for web page
 char *mainwebpage =
-"<html>\
-    <head>\
-    <title></title>\
-    <script type=\"text/javascript\">\
-        window.onload = startInterval;\
-        function startInterval() {\
-            setInterval(\"updateText();\",100);\
-        }\
-\
-        function updateText() {\
-            xmlhttp=new XMLHttpRequest();\
-            xmlhttp.onreadystatechange=function() {\
-                if (xmlhttp.readyState==4 && xmlhttp.status==200)\
-                    document.getElementById('mainblock').innerHTML = xmlhttp.responseText;\
-            }\
-            xmlhttp.open(\"GET\",\"slavadocs_data.txt\",true);\
-            xmlhttp.send();            \
-        }\
-    </script>\
-    </head>\
-    <body>  \
-        <div id=\"mainblock\"></div>\
-    </body>\
+"<html>\n\
+    <head>\n\
+    <title></title>\n\
+    <script type=\"text/javascript\">\n\
+        window.onload = startInterval;\n\
+        function startInterval() {\n\
+            setInterval(\"updateText();\",100);\n\
+        }\n\
+\n\
+        function updateText() {\n\
+            xmlhttp=new XMLHttpRequest();\n\
+            xmlhttp.onreadystatechange=function() {\n\
+                if (xmlhttp.readyState==4 && xmlhttp.status==200)\n\
+                    document.getElementById('mainblock').innerHTML = xmlhttp.responseText;\n\
+            }\n\
+            xmlhttp.open(\"GET\",\"slavadocs_data.txt\",true);\n\
+            xmlhttp.send();            \n\
+        }\n\
+    </script>\n\
+    </head>\n\
+    <body>  \n\
+        <div id=\"mainblock\"></div>\n\
+    </body>\n\
 </html>";
 
 // path to html web page we use
@@ -102,6 +102,7 @@ int main(int argc, char *argv[]) {
 
     FILE *datafile = fopen(datatxt, "w");
     fprintf(datafile, "nothing here");
+    fclose(datafile);
 
     // server is always ready to accept one connection
     while (true) {
@@ -116,8 +117,9 @@ int main(int argc, char *argv[]) {
 
         // server will terminate after special command
         if (!strcmp(buffer, "please terminate")) {
-           close(newsockfd);
-           break;
+            fprintf(stderr, "caught terminate signal");
+            close(newsockfd);
+            break;
         }
 
         // if session was initiated correctly run
