@@ -20,7 +20,7 @@ void error(const char *msg) {
     exit(0);
 }
 
-void send_to_server(int sockfd, char *msg) {
+void send_to_server(int sockfd, const char *msg) {
     if (write(sockfd, msg, strlen(msg)) < 0)
         error("ERROR writing");
 }

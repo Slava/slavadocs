@@ -13,7 +13,7 @@
 #include <assert.h>
 
 // template for web page
-char *mainwebpage =
+const char *mainwebpage =
 "<html>\n\
     <head>\n\
     <title></title>\n\
