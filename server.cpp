@@ -138,7 +138,7 @@ int main(int argc, char *argv[]) {
 
 void run_session(int sockfd) {
     fprintf(stderr, "start of session\n");
-    char buffer[256], command[256], command_attr[256], webpage[256*256];
+    char buffer[256], webpage[256*256];
     bzero(buffer,256);
     bzero(webpage, 256*256);
 

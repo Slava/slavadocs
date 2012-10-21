@@ -45,10 +45,9 @@ void setup_socket(int &sockfd, char *hostname, hostent *server, sockaddr_in &ser
 }
 
 int main(int argc, char *argv[]) {
-    int sockfd, portno, n;
+    int sockfd, portno;
     struct sockaddr_in serv_addr;
-    struct hostent *server;
-    struct termios oldSettings, newSettings;
+    struct hostent *server = 0;
 
     char buffer[256];
     if (argc < 3) {
