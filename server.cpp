@@ -100,12 +100,12 @@ int main(int argc, char *argv[]) {
     fprintf(htmlfile, "%s\n", mainwebpage);
     fclose(htmlfile);
 
-    FILE *datafile = fopen(datatxt, "w");
-    fprintf(datafile, "nothing here");
-    fclose(datafile);
 
     // server is always ready to accept one connection
     while (true) {
+        FILE *datafile = fopen(datatxt, "w");
+        fprintf(datafile, "nothing here");
+        fclose(datafile);
         newsockfd = accept(sockfd,
                 (struct sockaddr *) &cli_addr,
                 &clilen);
@@ -117,7 +117,7 @@ int main(int argc, char *argv[]) {
 
         // server will terminate after special command
         if (!strcmp(buffer, "please terminate")) {
-            fprintf(stderr, "caught terminate signal");
+            fprintf(stderr, "caught terminate signal\n");
             close(newsockfd);
             break;
         }
