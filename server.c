@@ -151,12 +151,12 @@ void run_session(int sockfd) {
 
         FILE *datafile = fopen(datatxt, "w");
 
+        fprintf(stderr, "just read: %s\n", buffer);
+
         // check it is type request
         if (*buffer == 't') {
             normalize(buffer+1);
             strcat(webpage, buffer+1);
-
-            fprintf(stderr, "just read: %s\n", buffer);
 
             // and we put all text with HEADER and FOOTER to
             // file defined in HTML_FILE_NAME
@@ -207,6 +207,8 @@ void normalize(char *s) {
                 break;
             case '\n':
                 strcat(p, "<br>");
+                p += 4;
+                break;
             default:
                 *p++ = *t;
         }
