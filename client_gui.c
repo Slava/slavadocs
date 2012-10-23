@@ -135,9 +135,9 @@ void on_text_view_buffer_changed(GtkTextBuffer *buffer, gpointer user_data) {
 	/* Get the entire buffer text. */
 	text = gtk_text_buffer_get_text(buffer, &start, &end, TRUE);
 
-	char *tmp = malloc(strlen(text)+2);	// first will be 't' control char, and we need '\0'
-	bzero(tmp,sizeof tmp);
+	char *tmp = calloc(strlen(text)+2, 1);	// first will be 't' control char, and we need '\0'
 	strcat(tmp, "t");
 	strcat(tmp, text);
 	send_to_server(sockfd, tmp);
+	free(tmp);
 }

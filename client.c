@@ -2,17 +2,18 @@
 // port number and host are passed as arguments
 // communicates with server by passing commands
 
-// C includes
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include "client_functions.h"
 
+#define MAXPAGESIZE (256*256)
+
 int main(int argc, char *argv[]) {
     int sockfd, portno;
 
-    char buffer[256];
+    char buffer[MAXPAGESIZE];
     if (argc < 3) {
        fprintf(stderr,"usage %s hostname port [kill]\n", argv[0]);
        exit(0);
@@ -20,7 +21,7 @@ int main(int argc, char *argv[]) {
     portno = atoi(argv[2]);
 
     sockfd = setup_socket(argv[1], portno);
-    bzero(buffer,256);
+    bzero(buffer,MAXPAGESIZE);
 
     if (argc > 3 && !strcmp(argv[3], "kill")) {
         send_to_server(sockfd, "please terminate");

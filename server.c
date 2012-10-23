@@ -2,16 +2,19 @@
 // The port number, path to html document
 // and path to HTDOCS are passed as arguments
 
-// C includes
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <assert.h>
+#include <memory.h>
+#include "server_functions.h"
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <assert.h>
-#include <memory.h>
+
+#define MAXPAGESIZE (256*256)
+
 
 // template for web page
 const char *mainwebpage =
@@ -43,57 +46,16 @@ const char *mainwebpage =
 // path to html web page we use
 char *HTML_FILE_NAME;
 // path to temp data storage
-char datatxt[256];
+char datatxt[MAXPAGESIZE];
 
 void run_session(int);
 void normalize(char *);
 
-void error(const char *msg) {
-    perror(msg);
-    exit(1);
-}
-
-int get_from_client(int sockfd, char *buffer) {
-    int len;
-    char *tmp = calloc(4,1); 
-
-    // firstly read number of bytes (always 3 digits)
-    if (read(sockfd,tmp,3) < 0)
-        return -1;
-
-    // we recieved number length of next message
-    if (sscanf(tmp, "%d", &len) != 1) {
-        free(tmp);
-        return -1;
-    }
-    free(tmp);
-
-    if (read(sockfd,buffer,len) < 0)
-        return -1;
-
-    return 1;
-}
-
-int setup_socket(int portno) {
-    struct sockaddr_in serv_addr;
-    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd < 0)
-       error("ERROR opening socket");
-    bzero((char *) &serv_addr, sizeof(serv_addr));
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_addr.s_addr = INADDR_ANY;
-    serv_addr.sin_port = htons(portno);
-    if (bind(sockfd, (struct sockaddr *) &serv_addr,
-             sizeof(serv_addr)) < 0)
-             error("ERROR on binding");
-    listen(sockfd,5);
-    return sockfd;
-}
 
 int main(int argc, char *argv[]) {
     int sockfd, newsockfd, portno;
     socklen_t clilen;
-    char buffer[256];
+    char buffer[MAXPAGESIZE];
     struct sockaddr_in cli_addr;
     int n;
     if (argc < 4) {
@@ -108,7 +70,7 @@ int main(int argc, char *argv[]) {
     HTML_FILE_NAME = argv[2];
 
     // path to temp data
-    bzero(datatxt,256);
+    bzero(datatxt,MAXPAGESIZE);
     strcat(datatxt, argv[3]);
     strcat(datatxt, "/slavadocs_data.txt");
 
@@ -135,7 +97,7 @@ int main(int argc, char *argv[]) {
                 &clilen);
         if (newsockfd < 0)
             error("ERROR on accept");
-        bzero(buffer,256);
+        bzero(buffer,MAXPAGESIZE);
         n = get_from_client(newsockfd,buffer);
         if (n < 0) error("ERROR reading from socket");
 
@@ -162,9 +124,8 @@ int main(int argc, char *argv[]) {
 
 void run_session(int sockfd) {
     fprintf(stderr, "start of session\n");
-    char buffer[256], webpage[256*256];
-    bzero(buffer,256);
-    bzero(webpage, 256*256);
+    char *buffer = calloc(MAXPAGESIZE, 1), 
+        *webpage = calloc(MAXPAGESIZE, 1);
 
     // while we receive any text
     while (get_from_client(sockfd, buffer) != -1) {
@@ -184,25 +145,24 @@ void run_session(int sockfd) {
             fprintf(datafile, "%s\n", webpage);
         } else if (*buffer == 'c') {    // control requests
             if (!strcmp(buffer+1, "clear"))
-                bzero(webpage, 256*256);
+                bzero(webpage, MAXPAGESIZE);
         } else {
             // probably something is wrong
             break;
         }
 
         fclose(datafile);
-        bzero(buffer,256);
+        bzero(buffer,MAXPAGESIZE);
     }
 
+    free(buffer); free(webpage);
     fprintf(stderr, "end of session\n");
 }
 
 void normalize(char *s) {
-    char buffer[256], *p, *t;
+    char *buffer = calloc(strlen(s)*6+1, 1), *p, *t;
     t = s;
     p = buffer;
-
-    bzero(buffer,256);
 
     while (*t) {
         switch (*t) {
@@ -237,5 +197,6 @@ void normalize(char *s) {
     }
 
     strcpy(s, buffer);
+    free(buffer);
 }
 

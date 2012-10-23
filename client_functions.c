@@ -17,10 +17,10 @@ void error(const char *msg) {
 void send_to_server(int sockfd, const char *msg) {
     // lets send number of bytes we want to send
     int length = strlen(msg);
-    char *len_text = calloc(4, 1);
+    char *len_text = calloc(9, 1);
 
-    sprintf(len_text, "%03d", length);
-    if (write(sockfd, len_text, 3) < 0)
+    sprintf(len_text, "%08d", length);
+    if (write(sockfd, len_text, 8) < 0)
         error("ERROR writing");
     
     free(len_text);
