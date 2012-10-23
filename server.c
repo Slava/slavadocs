@@ -53,6 +53,27 @@ void error(const char *msg) {
     exit(1);
 }
 
+int get_from_client(int sockfd, char *buffer) {
+    int len;
+    char *tmp = calloc(4,1); 
+
+    // firstly read number of bytes (always 3 digits)
+    if (read(sockfd,tmp,3) < 0)
+        return -1;
+
+    // we recieved number length of next message
+    if (sscanf(tmp, "%d", &len) != 1) {
+        free(tmp);
+        return -1;
+    }
+    free(tmp);
+
+    if (read(sockfd,buffer,len) < 0)
+        return -1;
+
+    return 1;
+}
+
 int setup_socket(int portno) {
     struct sockaddr_in serv_addr;
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -115,7 +136,7 @@ int main(int argc, char *argv[]) {
         if (newsockfd < 0)
             error("ERROR on accept");
         bzero(buffer,256);
-        n = read(newsockfd,buffer,255);
+        n = get_from_client(newsockfd,buffer);
         if (n < 0) error("ERROR reading from socket");
 
         // server will terminate after special command
@@ -146,7 +167,7 @@ void run_session(int sockfd) {
     bzero(webpage, 256*256);
 
     // while we receive any text
-    while (read(sockfd,buffer,255) >= 0) {
+    while (get_from_client(sockfd, buffer) != -1) {
         // add received text to our page
 
         FILE *datafile = fopen(datatxt, "w");

@@ -20,9 +20,12 @@ void on_entry_domain_port_activate(GtkWidget *widget, gpointer user_data);
 // when popup window with error shows, we should show appropriate message
 void on_popup_error_show(GtkWidget *widget, gpointer user_data);
 void on_popup_error_destroy(GtkWidget *widget, gpointer user_data);
+// resend text if buffer was modified
+void on_text_view_buffer_changed(GtkTextBuffer *buffer, gpointer user_data);
 
 GtkBuilder *builder;
-GtkWidget *window, *dialog_startup, *popup_error, *text_view;
+GtkWidget *window, *dialog_startup, *popup_error;
+GtkTextBuffer *text_view_buffer;
 
 // error message that should be printed out
 char last_error[256];
@@ -49,6 +52,11 @@ int main(int argc, char **argv) {
 
 	// popup window with error message
 	popup_error = GTK_WIDGET(gtk_builder_get_object(builder, "popup_error"));
+
+	// text buffer of main window's text view
+	// we will resend whole text if it is changed
+	text_view_buffer = GTK_TEXT_BUFFER(gtk_text_view_get_buffer(GTK_TEXT_VIEW(gtk_builder_get_object(builder, "text_view"))));
+	g_signal_connect (text_view_buffer, "changed", G_CALLBACK (on_text_view_buffer_changed), NULL);
 
 	// we do not show main window untill app connects to server
 	gtk_widget_show(dialog_startup);
@@ -91,6 +99,7 @@ void on_button_connect_clicked(GtkWidget *widget, gpointer grid) {
 		return;
 	}
 
+	send_to_server(sockfd, "initiate session");
 	// we connected successfully, so now we can show main window
 	gtk_widget_hide(dialog_startup);
 	gtk_widget_show(window);
@@ -112,3 +121,23 @@ void on_entry_domain_port_activate(GtkWidget *widget, gpointer user_data) {
 	on_button_connect_clicked(GTK_WIDGET(gtk_builder_get_object(builder, "button_connect")), (gpointer)NULL);
 }
 
+void on_text_view_buffer_changed(GtkTextBuffer *buffer, gpointer user_data) {
+	send_to_server(sockfd, "cclear");
+	GtkTextIter start;
+	GtkTextIter end;
+
+	gchar *text;
+
+	/* Obtain iters for the start and end of points of the buffer */
+	gtk_text_buffer_get_start_iter(buffer, &start);
+	gtk_text_buffer_get_end_iter(buffer, &end);
+
+	/* Get the entire buffer text. */
+	text = gtk_text_buffer_get_text(buffer, &start, &end, TRUE);
+
+	char *tmp = malloc(strlen(text)+2);	// first will be 't' control char, and we need '\0'
+	bzero(tmp,sizeof tmp);
+	strcat(tmp, "t");
+	strcat(tmp, text);
+	send_to_server(sockfd, tmp);
+}
