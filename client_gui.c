@@ -18,7 +18,6 @@ void on_button_exit_clicked(GtkWidget *widget, gpointer grid);
 // when popup window with error shows, we should show appropriate message
 void on_popup_error_show(GtkWidget *widget, gpointer user_data);
 void on_popup_error_destroy(GtkWidget *widget, gpointer user_data);
-void on_popup_error_close(GtkWidget *widget, gpointer user_data);
 
 GtkBuilder *builder;
 GtkWidget *window, *dialog_startup, *popup_error;
@@ -60,6 +59,8 @@ int main(int argc, char **argv) {
 }
 
 void on_window_destroy(GtkWidget *widget, gpointer user_data) {
+	fprintf(stderr, "close socket\n");
+	close(sockfd);
 	gtk_main_quit();
 }
 
@@ -102,10 +103,6 @@ void on_popup_error_show(GtkWidget *widget, gpointer user_data) {
 }
 
 void on_popup_error_destroy(GtkWidget *widget, gpointer user_data) {
-	gtk_widget_hide(popup_error);
-}
-
-void on_popup_error_close(GtkWidget *widget, gpointer user_data) {
 	gtk_widget_hide(popup_error);
 }
 

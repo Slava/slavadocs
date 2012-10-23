@@ -135,27 +135,8 @@
     <property name="buttons">close</property>
     <signal name="destroy" handler="on_popup_error_destroy" swapped="no"/>
     <signal name="show" handler="on_popup_error_show" swapped="no"/>
-    <signal name="close" handler="on_popup_error_close" swapped="no"/>x
+    <signal name="close" handler="on_popup_error_destroy" swapped="no"/>
     <signal name="response" handler="on_popup_error_close" swapped="no"/>
-    <child internal-child="vbox">
-      <object class="GtkBox" id="messagedialog-vbox">
-        <property name="can_focus">False</property>
-        <property name="orientation">vertical</property>
-        <property name="spacing">2</property>
-        <child internal-child="action_area">
-          <object class="GtkButtonBox" id="messagedialog-action_area">
-            <property name="can_focus">False</property>
-            <property name="layout_style">end</property>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="pack_type">end</property>
-            <property name="position">0</property>
-          </packing>
-        </child>
-      </object>
-    </child>
   </object>
   <object class="GtkWindow" id="window">
     <property name="can_focus">False</property>
