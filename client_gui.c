@@ -15,12 +15,14 @@ void on_dialog_startup_destroy(GtkWidget *widget, gpointer user_data);
 // buttons of dialog box
 void on_button_connect_clicked(GtkWidget *widget, gpointer grid);
 void on_button_exit_clicked(GtkWidget *widget, gpointer grid);
+// when hit enter on domain or port text field
+void on_entry_domain_port_activate(GtkWidget *widget, gpointer user_data);
 // when popup window with error shows, we should show appropriate message
 void on_popup_error_show(GtkWidget *widget, gpointer user_data);
 void on_popup_error_destroy(GtkWidget *widget, gpointer user_data);
 
 GtkBuilder *builder;
-GtkWidget *window, *dialog_startup, *popup_error;
+GtkWidget *window, *dialog_startup, *popup_error, *text_view;
 
 // error message that should be printed out
 char last_error[256];
@@ -49,7 +51,6 @@ int main(int argc, char **argv) {
 	popup_error = GTK_WIDGET(gtk_builder_get_object(builder, "popup_error"));
 
 	// we do not show main window untill app connects to server
-	// gtk_widget_show (window);
 	gtk_widget_show(dialog_startup);
 	
 	gtk_main();
@@ -90,6 +91,7 @@ void on_button_connect_clicked(GtkWidget *widget, gpointer grid) {
 		return;
 	}
 
+	// we connected successfully, so now we can show main window
 	gtk_widget_hide(dialog_startup);
 	gtk_widget_show(window);
 }
@@ -106,4 +108,7 @@ void on_popup_error_destroy(GtkWidget *widget, gpointer user_data) {
 	gtk_widget_hide(popup_error);
 }
 
+void on_entry_domain_port_activate(GtkWidget *widget, gpointer user_data) {
+	on_button_connect_clicked(GTK_WIDGET(gtk_builder_get_object(builder, "button_connect")), (gpointer)NULL);
+}
 

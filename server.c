@@ -162,7 +162,8 @@ void run_session(int sockfd) {
             // file defined in HTML_FILE_NAME
             fprintf(datafile, "%s\n", webpage);
         } else if (*buffer == 'c') {    // control requests
-            ;
+            if (!strcmp(buffer+1, "clear"))
+                bzero(webpage, 256*256);
         } else {
             // probably something is wrong
             break;

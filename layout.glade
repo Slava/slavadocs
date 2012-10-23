@@ -5,6 +5,7 @@
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
     <property name="window_position">center</property>
+    <property name="icon_name">accessories-text-editor</property>
     <property name="type_hint">dialog</property>
     <signal name="destroy" handler="on_dialog_startup_destroy" swapped="no"/>
     <child internal-child="vbox">
@@ -83,6 +84,7 @@
                     <property name="can_focus">True</property>
                     <property name="invisible_char">•</property>
                     <property name="placeholder_text">domain</property>
+                    <signal name="activate" handler="on_entry_domain_port_activate" swapped="no"/>
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
@@ -97,6 +99,7 @@
                     <property name="can_focus">True</property>
                     <property name="invisible_char">•</property>
                     <property name="placeholder_text">port</property>
+                    <signal name="activate" handler="on_entry_domain_port_activate" swapped="no"/>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
@@ -136,10 +139,17 @@
     <signal name="destroy" handler="on_popup_error_destroy" swapped="no"/>
     <signal name="show" handler="on_popup_error_show" swapped="no"/>
     <signal name="close" handler="on_popup_error_destroy" swapped="no"/>
-    <signal name="response" handler="on_popup_error_close" swapped="no"/>
+    <signal name="response" handler="on_popup_error_destroy" swapped="no"/>
   </object>
   <object class="GtkWindow" id="window">
+    <property name="width_request">400</property>
+    <property name="height_request">200</property>
     <property name="can_focus">False</property>
+    <property name="border_width">2</property>
+    <property name="title" translatable="yes">Slava Docs - GUI Client</property>
+    <property name="window_position">center</property>
+    <property name="icon_name">accessories-text-editor</property>
+    <property name="gravity">center</property>
     <signal name="destroy" handler="on_window_destroy" swapped="no"/>
     <child>
       <object class="GtkScrolledWindow" id="scrolledwindow1">
@@ -150,6 +160,9 @@
           <object class="GtkTextView" id="text_view">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
+            <property name="left_margin">2</property>
+            <property name="right_margin">2</property>
+            <property name="indent">2</property>
           </object>
         </child>
       </object>
