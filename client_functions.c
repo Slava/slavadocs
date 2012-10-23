@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include "client_functions.h"
 
+
 void error(const char *msg) {
     perror(msg);
     exit(-1);
@@ -23,7 +24,7 @@ int setup_socket(char *hostname, int portno) {
     struct sockaddr_in serv_addr;
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) {
-        fprintf(stderr, "ERROR opening socket");
+        fprintf(stderr, "ERROR opening socket\n");
         return -1;
     }
     server = gethostbyname(hostname);
@@ -39,7 +40,7 @@ int setup_socket(char *hostname, int portno) {
          server->h_length);
     serv_addr.sin_port = htons(portno);
     if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) {
-        fprintf(stderr, "ERROR connecting");
+        fprintf(stderr, "ERROR connecting\n");
         return -1;
     }
     
