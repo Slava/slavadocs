@@ -154,7 +154,7 @@ void run_session(int sockfd) {
         // check it is type request
         if (*buffer == 't') {
             normalize(buffer+1);
-            strcat(webpage, buffer+1); strcat(webpage, "<br>");
+            strcat(webpage, buffer+1);
 
             fprintf(stderr, "just read: %s\n", buffer);
 
@@ -205,6 +205,8 @@ void normalize(char *s) {
                 strcat(p, "    ");
                 p += 4;
                 break;
+            case '\n':
+                strcat(p, "<br>");
             default:
                 *p++ = *t;
         }

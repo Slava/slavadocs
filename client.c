@@ -34,6 +34,7 @@ int main(int argc, char *argv[]) {
     while (gets(buffer+1)) {
         // we do type request
         buffer[0] = 't';
+        strcat(buffer, "\n");
         send_to_server(sockfd, buffer);
     }
 
