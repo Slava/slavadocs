@@ -1,3 +1,5 @@
+#pragma once
+
 // setup socket connection to server
 // with hostname and port number
 int setup_socket(char *hostname, int portno);

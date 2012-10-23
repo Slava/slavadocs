@@ -1,3 +1,5 @@
+#pragma once
+
 // put error message and exit(-1)
 void error(const char *msg);
 // sends buffer to sockfd file descriptor
