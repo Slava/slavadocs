@@ -8,10 +8,11 @@
 #include <unistd.h>
 #include <assert.h>
 #include <memory.h>
-#include "server_functions.h"
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <time.h>
+#include "server_functions.h"
 
 #define MAXPAGESIZE (256*256)
 
@@ -33,7 +34,7 @@ const char *mainwebpage =
                 if (xmlhttp.readyState==4 && xmlhttp.status==200)\n\
                     document.getElementById('mainblock').innerHTML = xmlhttp.responseText;\n\
             }\n\
-            xmlhttp.open(\"GET\",\"slavadocs_data.txt\",true);\n\
+            xmlhttp.open(\"GET\",\"slavadocs_data.txt?%d\",true);\n\
             xmlhttp.send();            \n\
         }\n\
     </script>\n\
@@ -83,7 +84,8 @@ int main(int argc, char *argv[]) {
     if (!htmlfile)
         error("ERROR opening file");
 
-    fprintf(htmlfile, "%s\n", mainwebpage);
+    srand(time(0));
+    fprintf(htmlfile, mainwebpage, rand() ^ rand() << 16);
     fclose(htmlfile);
 
 
